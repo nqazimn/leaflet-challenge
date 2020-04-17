@@ -1,0 +1,16 @@
+/******************************************
+*  Author : Nabeel Qazi
+*  Created On : Fri Apr 17 2020
+*  File : style.css
+*******************************************/
+body {
+    padding: 0;
+    margin: 0;
+  }
+  
+  #map,
+  body,
+  html {
+    height: 100%;
+  }
+  
