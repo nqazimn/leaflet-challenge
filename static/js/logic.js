@@ -47,16 +47,20 @@ var highlightStyle = {
     "stroke": true,
     "fill": true,
     "fillOpacity": 1,
-    fillOpacity: 1,
-    fillColor: '#2262CC'
+    "fillOpacity": 1,
+    "fillColor": '#800000'
 };
 
 d3.json(states_outlines, function (data) {
+    console.log(data);
     L.geoJson(data, {
+
+
         style: defaultStyle,
         onEachFeature: function (feature, Layer) {
             Layer.on('mouseover', function () {
                 this.setStyle(highlightStyle)
+                this.bindTooltip("<h3>" + feature.properties.name + "</h3>").openTooltip();
             });
             Layer.on('mouseout', function () {
                 this.setStyle(defaultStyle)
