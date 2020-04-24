@@ -5,11 +5,12 @@
  *******************************************/
 
 var states_outlines = "./static/data/us_states.geojson";
+var earthquake_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson"
 async function getData(url) {
     let response = await fetch(url);
     let json = await response.json();
     return json;
-}
+};
 
 var maxBounds = L.latLngBounds(
     L.latLng(5.499550, -167.276413), //Southwest
@@ -55,7 +56,6 @@ d3.json(states_outlines, function (data) {
     console.log(data);
     L.geoJson(data, {
 
-
         style: defaultStyle,
         onEachFeature: function (feature, Layer) {
             Layer.on('mouseover', function () {
@@ -69,3 +69,24 @@ d3.json(states_outlines, function (data) {
     }).addTo(myMap);
 });
 
+d3.json(earthquake_url, function (eqData) {
+    // console.log(eqData.features);
+    console.log(eqData.features[0]);
+    // console.log(eqData.features.length);
+
+
+    for (var i = 0; i < eqData.features.length; i++) {
+        var eqCoordinates = eqData.features[i].geometry.coordinates.slice(0, 2);
+        var eqLatLon = [eqCoordinates[1], eqCoordinates[0]]
+        var eqMagnitude = eqData.features[i].properties.mag;
+
+        L.circle(eqLatLon, {
+            fillOpacity: 0.5,
+            color: "None",
+            fillColor: "orange",
+            radius: eqMagnitude * 10000
+        }).bindPopup("<h1>" + "TEST" + "</h1> <hr> <h3>Population: " + "Magnitude?" + "</h3>").addTo(myMap);
+
+    }
+
+})
