@@ -4,7 +4,8 @@
  *  File : logic.js
  *******************************************/
 
-var states_outlines = "./static/data/us_states.geojson";
+// source: https://datahub.io/core/geo-countries#resource-countries
+var countryOutlines = "./static/data/countries.geojson";
 var earthquake_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson"
 async function getData(url) {
     let response = await fetch(url);
@@ -18,8 +19,8 @@ var maxBounds = L.latLngBounds(
 );
 
 var myMap = L.map("map", {
-    center: [44.828175, -102.5795],
-    zoom: 4
+    center: [0, 0],
+    zoom: 3
 });
 
 
@@ -30,29 +31,27 @@ L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
     accessToken: API_KEY,
 }).addTo(myMap);
 
-// Make US map prominent
 var defaultStyle = {
-    "color": "#FFFFFF",
-    "weight": 1.25,
+    "color": "#000000",
+    "weight": 0.1,
     "opacity": 1,
     "stroke": true,
     "fill": true,
-    "fillOpacity": 1,
-    "fillColor": "#008080"
+    "fillOpacity": 0,
+    "fillColor": "#C0C0C0"
 };
 
 var highlightStyle = {
-    "color": '#FFFFFF',
-    "weight": 2.5,
+    "color": '#000000',
+    "weight": 1,
     opacity: 1,
     "stroke": true,
     "fill": true,
-    "fillOpacity": 1,
-    "fillOpacity": 1,
-    "fillColor": '#800000'
+    "fillOpacity": 0,
+    "fillColor": '#008080'
 };
 
-d3.json(states_outlines, function (data) {
+d3.json(countryOutlines, function (data) {
     console.log(data);
     L.geoJson(data, {
 
@@ -60,7 +59,7 @@ d3.json(states_outlines, function (data) {
         onEachFeature: function (feature, Layer) {
             Layer.on('mouseover', function () {
                 this.setStyle(highlightStyle)
-                this.bindTooltip("<h3>" + feature.properties.name + "</h3>").openTooltip();
+                this.bindTooltip("<h3>" + feature.properties.ADMIN + "</h3>").openTooltip();
             });
             Layer.on('mouseout', function () {
                 this.setStyle(defaultStyle)
@@ -70,7 +69,7 @@ d3.json(states_outlines, function (data) {
 });
 
 d3.json(earthquake_url, function (eqData) {
-    // console.log(eqData.features);
+    console.log(eqData.features);
     console.log(eqData.features[0]);
     // console.log(eqData.features.length);
 
@@ -78,14 +77,26 @@ d3.json(earthquake_url, function (eqData) {
     for (var i = 0; i < eqData.features.length; i++) {
         var eqCoordinates = eqData.features[i].geometry.coordinates.slice(0, 2);
         var eqLatLon = [eqCoordinates[1], eqCoordinates[0]]
-        var eqMagnitude = eqData.features[i].properties.mag;
+        var eqMagnitude = (eqData.features[i].properties.mag);
+        // console.log(eqMagnitude * 20000);
 
-        L.circle(eqLatLon, {
-            fillOpacity: 0.5,
-            color: "None",
-            fillColor: "orange",
-            radius: eqMagnitude * 10000
-        }).bindPopup("<h1>" + "TEST" + "</h1> <hr> <h3>Population: " + "Magnitude?" + "</h3>").addTo(myMap);
+        if (Math.sign(eqMagnitude) > 0) {
+            L.circle(eqLatLon, {
+                fillOpacity: 0.5,
+                color: "None",
+                fillColor: "orange",
+                radius: eqMagnitude * 20000
+            }).bindPopup("<h1>" + "TEST" + "</h1> <hr> <h3>Population: " + "Magnitude?" + "</h3>").addTo(myMap);
+        }
+        if (Math.sign(eqMagnitude) < 0) {
+            L.circle(eqLatLon, {
+                fillOpacity: 0.5,
+                color: "None",
+                fillColor: "red",
+                radius: Math.abs(eqMagnitude) * 20000
+            }).bindPopup("<h1>" + "TEST" + "</h1> <hr> <h3>Population: " + "Magnitude?" + "</h3>").addTo(myMap);
+        }
+
 
     }
 
